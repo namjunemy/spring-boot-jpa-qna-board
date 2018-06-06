@@ -23,3 +23,5 @@
 
 ### 1-3. github에 소스 코드 추가
 
+* sourcetree에 저장소 추가
+* github에 소스 코드 업로드
