@@ -35,3 +35,11 @@
 * 각 계정별 한글 인코딩 설정
 * 계정 추가 및 sudo 권한 부여
 
+### 1-5. 원격 서버(개발 서버 또는 실 서버)에 소스 코드 배포하기 2
+
+* java, git 설치
+  * wget을 통해서 수동으로 설치 가능
+* git clone 후 빌드
+  * `$ ./mvnw clean package`
+* 서버 시작
+  * `$ java -jar [project jar file] &`
