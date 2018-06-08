@@ -57,7 +57,10 @@
 * controller -> return시 templates directory에 있는 html파일 매핑
 * Mustache template engine을 이용하여 동적 처리
 
-### 2-2. 회원가입 페이지 구현
+### 2-2. 회원가입 기능 구현
+
+* GET/POST
+* User 클래스와 setter를 통한 자동 매핑
 
 ### 2-3. 사용자 목록 페이지 구현
 
