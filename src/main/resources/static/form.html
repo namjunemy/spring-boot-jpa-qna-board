@@ -27,31 +27,36 @@
         <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span
           class="icon-bar"></span> <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Q&A</a>
+      <a class="navbar-brand" href="/">Q&A</a>
     </div>
 
     <ul class="nav navbar-nav navbar-right">
       <li><a href="/form.html">회원가입</a></li>
     </ul>
-  </div>
-  <!-- /.navbar-collapse -->
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/list">회원목록</a></li>
+    </ul>
   </div>
   <!-- /.container-fluid -->
 </nav>
 
 <div class="container">
-  <form>
+  <form action="/create" method="post">
     <div class="form-group">
-      <label for=userId">ID</label>
-      <input type="text" class="form-control" id="userId" placeholder="사용자 아이디">
+      <label for="userId">ID</label>
+      <input type="text" class="form-control" name="userId" placeholder="사용자 아이디">
     </div>
     <div class="form-group">
       <label for="password">PASSWORD</label>
-      <input type="password" class="form-control" id="password" placeholder="비밀번호">
+      <input type="password" class="form-control" name="password" placeholder="비밀번호">
     </div>
     <div class="form-group">
       <label for="name">NAME</label>
-      <input type=text" class="form-control" id="name" placeholder="이름">
+      <input type="text" class="form-control" name="name" placeholder="이름">
+    </div>
+    <div class="form-group">
+      <label for="name">Email</label>
+      <input type="email" class="form-control" name="email" placeholder="이메일">
     </div>
     <button type="submit" class="btn btn-default">Submit</button>
   </form>

@@ -43,3 +43,30 @@
   * `$ ./mvnw clean package`
 * 서버 시작
   * `$ java -jar [project jar file] &`
+
+## 반복주기 2
+
+### 학습목표
+
+* 동적인 HTML 웹 페이지 개발
+* Spring MVC의 Model, View, Controller 기반 개발
+
+### 2-1. Controller 추가 및 mustache에 인자 전달
+
+* pom.xml에 mustache 의존성 추가 확인
+* controller -> return시 templates directory에 있는 html파일 매핑
+* Mustache template engine을 이용하여 동적 처리
+
+### 2-2. 회원가입 기능 구현
+
+* GET/POST
+* User 클래스와 setter를 통한 자동 매핑
+
+### 2-3. 사용자 목록 페이지 구현
+
+* List 컬렉션과 mustache 반복문을 이용해서 사용자 목록 출력
+
+### 2-4. 원격 서버에 소스 코드 배포
+
+### 2-5. 이전 상태로 원복 후 반복 구현
+
