@@ -24,4 +24,6 @@
 ### 1-3. github에 소스 코드 추가
 
 * sourcetree에 저장소 추가
-* github에 소스 코드 업로드
+  * git을 통해서 관리할 코드와 관리하지 않을 코드를 분리하는 과정(ignore)
+* github에 소스 코드 업로드(commit & push)
+
