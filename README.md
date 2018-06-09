@@ -94,6 +94,80 @@
 
 ### 3-2. 자바 객체와 테이블 매핑, 회원가입 기능 구현
 
+* spring-boot-starter-data-jpa 의존성 추가
+
+* JPA에서 제공하는 annotation(참고 : http://jojoldu.tistory.com/251?category=635883)
+
+  * **@Entity**
+
+    * 테이블과 연결될 클래스임을 나타낸다.
+    * 언더스코어 네이밍으로 이름을 매칭한다.
+    * ex) SalesManager.java => sales_manager 테이블
+
+  * **@Id**
+
+    * 해당 테이블의 PK를 나타낸다.
+
+  * **@GeneratedValue**
+
+    * PK의 생성 규칙을 나타낸다.
+    * 기본값은 AUTO로 MYSQL의 auto_increment와 같이 자동증가하는 정수형 값이 된다.
+    * Spring Boot 2.0에서는 옵션을 추가 해야만 제대로 동작한다.
+      * http://jojoldu.tistory.com/295
+
+  * **@Column**
+
+    * 테이블의 컬럼을 나타내면, 굳이 선언하지 않더라도 해당 클래스의 필드는 모두 컬럼이 된다.
+    * 사용하는 이유는, 기본값 외에 추가로 변경이 필요한 옵션이 있을경우 사용 한다.
+    * 문자열의 경우 VARCHAR(255)가 기본값인데, 사이즈를 500으로 늘리고 싶거나, 타입을 TEXT로 변경하고 싶거나, 해당 필드의 nullable 설정을 false로 바꾸거나 등의 경우에 사용 한다.
+
+  * **정말 유용한 팁**
+
+    ```text
+    웬만하면 Entity의 PK는 Long 타입의 Auto_increment를 추천합니다. 
+    (MySQL 기준으로 이렇게 하면 bigint 타입이 됩니다.) 
+    주민등록번호와 같은 비지니스상 유니크키나, 여러키를 조합한 복합키로 PK를 잡을 경우 난감한 상황이 종종 발생합니다. 
+    (1) FK를 맺을때 다른 테이블에서 복합키 전부를 갖고 있거나, 중간 테이블을 하나더 둬야하는 상황이 발생합니다. 
+    (2) 인덱스에 좋은 영향을 끼치지 못합니다. 
+    (3) 유니크한 조건이 변경될 경우 PK 전체를 수정해야하는 일이 발생합니다. 
+    주민등록번호, 복합키 등은 유니크키로 별도로 추가하시는것을 추천드립니다.
+    ```
+
+* application.properties파일에서 spring boot - h2 db connection url 설정
+
+```properties
+spring.datasource.url=jdbc:h2:~/qna-board;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+```
+
+* UserRepository 인터페이스 구현
+
+```java
+package io.namjune.domain;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+
+}
+```
+
+* UserController에서 Collection으로 처리하던 작업 JPA 사용으로 변경
+  * 회원 가입, 회원 목록 기능에서 JPA로 데이터 처리
+
+```java
+...
+	@Autowired
+  private UserRepository userRepository;
+...
+  userRepository.save(user);
+...
+  userRepository.findAll()
+```
+
 ### 3-3. 개인정보 수정 기능 구현
 
 ### 3-4. 질문하기, 질문목록 기능 구현
