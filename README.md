@@ -68,5 +68,10 @@
 
 ### 2-4. 원격 서버에 소스 코드 배포
 
+- `$ git pull`
+- `$ ./mvnw clean package`
+- `$ java -jar [project jar file] &`
+
 ### 2-5. 이전 상태로 원복 후 반복 구현
 
+* sourcetree -> git reset 이용하여 이전 상태로 원복 가능
