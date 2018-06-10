@@ -10,10 +10,10 @@ public class User {
   @Id
   @GeneratedValue
   private Long id;
-  
-  @Column(nullable=false, length=20)
+
+  @Column(nullable = false, length = 20)
   private String userId;
-  
+
   private String password;
   private String name;
   private String email;
@@ -32,6 +32,12 @@ public class User {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public void update(User updateUser) {
+    this.password = updateUser.password;
+    this.name = updateUser.name;
+    this.email = updateUser.email;
   }
 
   @Override
