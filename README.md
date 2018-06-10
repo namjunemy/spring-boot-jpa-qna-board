@@ -168,9 +168,26 @@ public interface UserRepository extends JpaRepository<User, Long> {
   userRepository.findAll()
 ```
 
-### 3-3. 개인정보 수정 기능 구현
+### 3-3. HTML 정리, URL 정리
 
-### 3-4. 질문하기, 질문목록 기능 구현
+* clone 받은 HTML 템플릿 url 정리
+* @RequestMapping을 이용하여 컨트롤러 매핑 정보 수정
+* mustache 템플릿 엔진을 활용하여 HTML 파일 상단 메뉴 중복 제거(mustache include file)
 
-### 3-5. 원격 서버에 소스 코드 배포
+### 3-4. 개인정보 수정 기능 구현 1
 
+* 관리자가 사용자의 정보를 수정할 수 있도록 개인정보 수정 기능 구현
+* /users/{id}/form 컨트롤러 메소드 추가, 사용자 별 updateForm 페이지 제공, findOne(id)를 이용하여 데이터 조회
+* @PathVariable 을 통해서 request의 id 사용
+
+### 3-5. 개인정보 수정 기능 구현 2
+
+* 실제로 updateForm에서 수정 버튼을 눌렀을 때, Update 동작을 하기 위한 update 메소드 구현, 컨트롤러 매핑
+* User 클래스(VO) update 메소드 추가, userRepository.save(user)를 이용하여 업데이트 수행
+* `<input type="hidden" name="_method" value="put" /> ` 태그를 이용하여 HTML에서는 post 요청으로 전달하되 서버측에서 PUT 메소드로 처리할 수 있도록 수정(@PostMapping => @PutMapping)
+
+### 3-6. 원격 서버에 소스 코드 배포
+
+* 원격 서버에서 jar 파일 생성과정 없이 spring-boot application 구동하기
+  * 개발 환경에서 문제가 없었던 프로젝트가 배포하는 과정에서 문제(jar로 만드는 과정에서 mustache의 partial 기능 오류 문제)가 생겼을 경우 jar 생성 없이 구동
+* `$ ./mvmw spring-boot:run &`
