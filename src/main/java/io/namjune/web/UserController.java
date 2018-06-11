@@ -39,14 +39,14 @@ public class UserController {
     }
 
     System.out.println("Login Success !");
-    session.setAttribute("user", user);
+    session.setAttribute("sessionUser", user);
 
     return "redirect:/";
   }
 
   @GetMapping("/logout")
   public String logout(HttpSession session) {
-    session.removeAttribute("user");
+    session.removeAttribute("sessionUser");
     return "redirect:/";
   }
 
@@ -69,13 +69,31 @@ public class UserController {
   }
 
   @GetMapping("{id}/form")
-  public String updateForm(@PathVariable Long id, Model model) {
+  public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+    User sessionUser = (User)session.getAttribute("sessionUser");
+    if (sessionUser == null) {
+      return "redirect:/users/loginForm";
+    }
+    
+    if (!id.equals(sessionUser.getId())) {
+      throw new IllegalStateException("You can't update another user");
+    }
+    
     model.addAttribute("user", userRepository.findOne(id));
     return "/user/updateForm";
   }
 
   @PutMapping("/{id}")
-  public String update(@PathVariable Long id, User updateUser) {
+  public String update(@PathVariable Long id, User updateUser, HttpSession session) {
+    User sessionUser = (User)session.getAttribute("You can't update another user");
+    if (sessionUser == null) {
+      return "redirect:/users/loginForm";
+    }
+    
+    if (!id.equals(sessionUser.getId())) {
+      throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+    }
+    
     User user = userRepository.findOne(id);
     user.update(updateUser);
     userRepository.save(user);
