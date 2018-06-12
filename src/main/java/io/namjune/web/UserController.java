@@ -33,20 +33,20 @@ public class UserController {
       return "redirect:/users/loginForm";
     }
 
-    if (!password.equals(user.getPassword())) {
+    if (!user.matchPassword(password)) {
       System.out.println("Login Failure !");
       return "redirect:/users/loginForm";
     }
 
     System.out.println("Login Success !");
-    session.setAttribute("sessionUser", user);
+    session.setAttribute(HttpSessionUtils.USER_SESSION_KEY, user);
 
     return "redirect:/";
   }
 
   @GetMapping("/logout")
   public String logout(HttpSession session) {
-    session.removeAttribute("sessionUser");
+    session.removeAttribute(HttpSessionUtils.USER_SESSION_KEY);
     return "redirect:/";
   }
 
@@ -70,30 +70,32 @@ public class UserController {
 
   @GetMapping("{id}/form")
   public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-    User sessionUser = (User)session.getAttribute("sessionUser");
-    if (sessionUser == null) {
+    if (HttpSessionUtils.isLoginUser(session)) {
       return "redirect:/users/loginForm";
     }
-    
-    if (!id.equals(sessionUser.getId())) {
+
+    User sessionUser = HttpSessionUtils.getUserFormSession(session);
+
+    if (!sessionUser.matchId(id)) {
       throw new IllegalStateException("You can't update another user");
     }
-    
+
     model.addAttribute("user", userRepository.findOne(id));
     return "/user/updateForm";
   }
 
   @PutMapping("/{id}")
   public String update(@PathVariable Long id, User updateUser, HttpSession session) {
-    User sessionUser = (User)session.getAttribute("You can't update another user");
-    if (sessionUser == null) {
+    if (HttpSessionUtils.isLoginUser(session)) {
       return "redirect:/users/loginForm";
     }
-    
-    if (!id.equals(sessionUser.getId())) {
-      throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+
+    User sessionUser = HttpSessionUtils.getUserFormSession(session);
+
+    if (!sessionUser.matchId(id)) {
+      throw new IllegalStateException("You can't update another user");
     }
-    
+
     User user = userRepository.findOne(id);
     user.update(updateUser);
     userRepository.save(user);
