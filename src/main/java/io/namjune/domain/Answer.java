@@ -81,4 +81,8 @@ public class Answer {
   public String toString() {
     return "Answer [id=" + id + ", writer=" + writer + ", contents=" + contents + ", createDate=" + createDate + "]";
   }
+
+  public boolean isSameWriter(User loginUser) {
+    return loginUser.equals(this.writer);
+  }
 }
