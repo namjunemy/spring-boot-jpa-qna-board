@@ -657,3 +657,204 @@ public class Result {
 * cd spring-boot-jpa-qna-board/target
 * mv qna-board-1.0 ~/tomcat/webapps/ROOT
 
+## 반복주기 6
+
+### 학습목표
+
+* JSON API 및 AJAX를 활용해 답변 추가/삭제 구현
+  * 답변을 추가 삭제하는 과정에서 일부분만 변경되면 동작에 문제가 없는 작업들이 페이지를 새로 랜더링하고, 클라이언트와 서버 사이에 데이터를 교환하는 과정에서 필요없는 비용이 발생한다.
+  * 이를 위해서, 부분 변경 적용을(동적 HTML 생성) AJAX를 이용해서 구현 한다.
+
+### 6-1. JSON API, AJAX를 활용한 답변 추가
+
+* 질문 상세보기 페이지에서 답변하기 버튼을 누르면 서버로 질문에 대한 데이터가 전송된다. 이 기본 기능을 막고, AJAX를 통해서 데이터를 서버에 전달한다.
+  * jquery를 이용하여 질문하기 버튼이 눌리는 시점을 잡고, click 이벤트가 일어났을 경우 preventDefault()를 통해서 동작을 막아준다.
+  * 다음으로 서버로 데이터를 전송하기 위해 사용자가 입력한 content를 가져온다.
+    * answer-write 클래스를 serialize() 함수를 통해 가져오면, 안에 있는 데이터가 json 형식으로 넘어온다.
+  * 데이터를 가지고 서버에 ajax 호출을 하기 위해서 url 정보를 가져오고, ajax를 통해서 post 요청을 한다.
+
+```javascript
+$(".answer-write input[type=submit]").click(addAnswer);
+
+function addAnswer(e) {
+	console.log("click !!");
+	e.preventDefault();
+
+	var queryString = $(".answer-write").serialize();
+	console.log("query : " + queryString);
+	
+	var url = $(".answer-write").attr("action");
+	console.log("url : " + url)
+	
+	$.ajax({
+		type : 'post',
+		url : url,
+		data : queryString,
+		dataType : 'json',
+		error : onError,
+		success : onSuccess});
+}
+
+function onError() {}
+
+function onSuccess() {}
+```
+
+* /api/questions/1/answer url로 넘어오는 요청에 대한 응답을 JSON으로 반환해주기 위해서 서버에서 AnswerController를 Api에 요청에 대한 응답을 반환하는 ApiAnswerController로 변경한다.
+  * @RestController로 애노테이션을 변경하면 Return 되는 Answer 객체를 json으로 변경해준다.
+
+```java
+@RestController
+@RequestMapping("/api/questions/{questionId}/answers")
+public class ApiAnswerController {
+
+  @Autowired
+  private AnswerRepository answerRepository;
+
+  @Autowired
+  private QuestionRepository questionRepository;
+
+  @PostMapping("")
+  public Answer create(@PathVariable Long questionId, String contents, HttpSession session) {
+    if (!HttpSessionUtils.isLoginUser(session)) {
+      return null;
+    }
+
+    User loginUser = HttpSessionUtils.getUserFormSession(session);
+    Question question = questionRepository.findOne(questionId);
+    Answer answer = new Answer(loginUser, question, contents);
+    return answerRepository.save(answer);
+  }
+}
+```
+
+### 6-2. JSON API, AJAX를 활용한 답변 추가
+
+- Ajax 호출이 잘 동작하고, 서버로 데이터를 전달해서 db에 insert까지 잘 이루어지면, 클라이언트에서 해당 부분을 동적 html로 생성해준다. onSuccess() 함수에 구현하면 된다.
+  - Ajax 호출이 success 되면 인자로 넘어오는 data에 JSON 형태의 Answer 객체가 전달된다. 하지만, 기본적으로Answer 클래스에서 getter가 있는 필드에 대해서만 JSON 형태로 만들어서 전달한다.
+  - 따라서, 이 부분을 getter를 생성하거나 jackson 라이브러리를 이용하여 처리한다.
+
+```javascript
+function onSuccess(data, status) {
+  console.log(data);
+}
+```
+
+* 필요한 도메인 클래스(Answer, Question, User)에 @JsonProperty 애노테이션을 추가해서 JSON 형태의 데이터로 반환될 수 있게 설정
+* template과 format() 메소드를 통해서 JSON 데이터를 바탕으로 동적 HTML을 생성한다.
+* 생성한 HTML을 기존 HTML article들의 맨 아래에 추가한다.
+
+```javascript
+...
+
+function onSuccess(data, status) {
+	console.log(data);
+	var answerTemplate = $("#answerTemplate").html();
+	var template = answerTemplate.format(data.writer.userId,
+			data.formattedCreateDate, data.contents, data.id, data.id);
+	$(".qna-comment-slipp-articles").append(template);
+	$("textarea[name=contents]").val('');
+}
+
+String.prototype.format = function() {
+	var args = arguments;
+	return this.replace(/{(\d+)}/g, function(match, number) {
+		return typeof args[number] != 'undefined' ? args[number] : match;
+	});
+};
+```
+
+### 6-3. AJAX를 활용해 답변 삭제 기능 구현
+
+* 답변을 삭제하는 delete api Controller 메소드와 ajax() 호출을 이용하여 로그인유저, 작성자를 체크하고, db에서도 삭제가 정상적으로 이루어졌으면 해당 컨텐츠와 제일 가까운 article 태그를 삭제하는 방법으로 기능을 구현한다. 
+* Javascript의 this scope 주의하기
+
+### 6-4. 질문 목록에 답변 수 보여주기 기능 추가
+
+* Question 클래스가 countOfAnswer 필드를 갖게 해서 답변 수를 유지한다.
+* 답변의 추가, 삭제 기능에 countOfAnswer 필드를 조작하는 로직을 추가한다.
+
+### 6-5. 도메인 클래스에 대한 중복 제거 및 리팩토링
+
+* 모델 클래스들의 중복을 제거하기 위해 부모클래스에 해당하는 Abstract 클래스를 만들고 @MappedSuperclass를 통해서 부모클래스로 사용할 수 있다.
+  * id와 createDate, modifiedDate, hashcode(), equals() 등 공통 메소드
+* @SpringBootApplication이 선언된 클래스에서 @EnableJpaAuditing 선언을 추가하고, 부모클래스 역할을 하는 Abstract 클래스에서 @EntityListeners(AuditingEntityListener.class)설정을 해주면 @CreatedDate와 @LastModifiedDate를 인식해서 데이터가 생성되거나 수정될 때 자동으로 생성해준다.
+
+### 6-6. Swagger 라이브러리를 통한 API 문서화 및 테스트
+
+* Swagger 의존성 추가
+* @SpringBootApplication이 선언되어 있는 클래스에 설정 추가
+  * @EnableSwagger2 를 추가하고, 관련 메소드 추가
+
+```java
+@SpringBootApplication
+@EnableJpaAuditing
+@EnableSwagger2
+public class QnaBoardApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(QnaBoardApplication.class, args);
+  }
+
+  @Bean
+  public Docket newsApi() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName("qna-board")
+        .apiInfo(apiInfo())
+        .select()
+        .paths(PathSelectors.ant("/api/**"))
+        .build();
+  }
+
+  private ApiInfo apiInfo() {
+    return new ApiInfoBuilder()
+        .title("QnA Board API")
+        .description("QnA Board API")
+        .termsOfServiceUrl("http://www-03.ibm.com/software/sla/sladb.nsf/sla/bm?Open")
+        .contact("Niklas Heidloff")
+        .license("Apache License Version 2.0")
+        .licenseUrl("https://github.com/IBM-Bluemix/news-aggregator/blob/master/LICENSE")
+        .version("2.0")
+        .build();
+  }
+}
+```
+
+* `http://localhost:8080/swagger-ui.html` url로 접속해서 API 확인
+  * 설정값대로 Api로 시작하는 Controller만 문서화 한다.
+
+### 6-7. 쉘 스크립트를 활용한 배포 자동화
+
+* 배포순서
+  * git pull
+  * 메이븐 빌드(mvnw clean package)
+  * Tomcat 서버 종료
+  * tomcat/webapps/ROOT 삭제
+  * 빌드한 산출물 ROOT로 이동
+  * Tomcat 서버 시작
+* 위의 과정에 대한 쉘 스크립트 작성
+
+```sh
+#!/bin/bash
+
+TOMCAT_HOME=~/tomcat
+APP_HOME=~/spring-boot-jpa-qna-board
+
+cd $APP_HOME
+git pull
+
+./mvnw clean package
+
+cd $TOMCAT_HOME/bin
+./shutdown.sh
+
+cd $TOMCAT_HOME/webapps
+rm -rf ROOT
+
+cd $APP_HOME/target
+mv qna-board-1.0/ $TOMCAT_HOME/webapps/ROOT/
+
+cd $TOMCAT_HOME/bin
+./startup.sh
+```
+
