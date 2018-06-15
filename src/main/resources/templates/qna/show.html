@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="kr">
-<head>{{> /include/header}}
+<head>
+{{> /include/header}}
 <body>
  {{> /include/navigation}}
 
@@ -43,7 +44,7 @@
      <div class="qna-comment">
       <div class="qna-comment-slipp">
        <p class="qna-comment-count">
-        <strong>2</strong>개의 의견
+        <strong>{{countOfAnswer}}</strong>개의 의견
        </p>
        <div class="qna-comment-slipp-articles">
         {{#answers}}
@@ -54,8 +55,9 @@
             class="article-author-thumb" alt="">
           </div>
           <div class="article-header-text">
-           <a href="/users/1/자바지기" class="article-author-name">{{writer.userId}}</a> <a href="#answer-1434"
-            class="article-header-time" title="퍼머링크"> {{formattedCreateDate}} </a>
+           <a href="/users/1/자바지기" class="article-author-name">{{writer.userId}}</a> <a
+            href="#answer-1434" class="article-header-time" title="퍼머링크">
+            {{formattedCreateDate}} </a>
           </div>
          </div>
          <div class="article-doc comment-doc">
@@ -65,23 +67,20 @@
           <ul class="article-util-list">
            <li><a class="link-modify-article" href="/questions/413/answers/1405/form">수정</a></li>
            <li>
-            <form class="delete-answer-form" action="/questions/413/answers/1405" method="POST">
-             <input type="hidden" name="_method" value="DELETE">
-             <button type="submit" class="delete-answer-button">삭제</button>
-            </form>
+            <a class="link-delete-article" href="/api/questions/{{question.id}}/answers/{{id}}">삭제</a>
            </li>
           </ul>
          </div>
         </article>
         {{/answers}}
-        <form class="submit-write" method="post" action="/questions/{{id}}/answers">
-         <div class="form-group" style="padding: 14px;">
-          <textarea class="form-control" placeholder="Update your status" name="contents"></textarea>
-         </div>
-         <input type="submit" class="btn btn-success pull-right" value="답변하기" />
-         <div class="clearfix" />
-        </form>
        </div>
+       <form class="answer-write" method="post" action="/api/questions/{{id}}/answers">
+        <div class="form-group" style="padding: 14px;">
+         <textarea class="form-control" placeholder="Update your status" name="contents"></textarea>
+        </div>
+        <input type="submit" class="btn btn-success pull-right" value="답변하기" />
+        <div class="clearfix" />
+       </form>
       </div>
      </div>
     </div>
@@ -110,10 +109,7 @@
 				<a class="link-modify-article" href="/api/qna/updateAnswer/{3}">수정</a>
 			</li>
 			<li>
-				<form class="delete-answer-form" action="/api/questions/{3}/answers/{4}" method="POST">
-					<input type="hidden" name="_method" value="DELETE">
-                     <button type="submit" class="delete-answer-button">삭제</button>
-				</form>
+        <a class="link-delete-article" href="/api/questions/{3}/answers/{4}">삭제</a>
 			</li>
 		</ul>
 		</div>
